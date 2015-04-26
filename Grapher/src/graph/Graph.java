@@ -3,6 +3,7 @@ package graph;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
+import java.awt.geom.Point2D;
 import java.util.LinkedList;
 
 import javax.swing.JFrame;
@@ -10,46 +11,60 @@ import javax.swing.JPanel;
 
 @SuppressWarnings("serial")
 public class Graph extends JPanel {
-	public static LinkedList<Point> points;
+	public static LinkedList<Point2D.Float> points;
 	public static LinkedList<Term> equation;
 	public static int xScale=10;
 	public static int yScale=1;
 	public static int xMax=500;
+	public static int xMin=-500;
 	public static int yMax=600;
+	public static int yMin=-600;
 	public static int ptSize = 5;
 	public static void main(String[] args) {
 		JFrame frame = new JFrame("Grapher");
-		frame.setSize(xMax,yMax);
+		frame.setSize(Math.abs(xMax-xMin),Math.abs(yMax-yMin));
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
 		Graph graph = new Graph();
 		frame.add(graph);
 		
 		equation = new LinkedList<Term>();
-		equation.add(new Term(1,2));
+		equation.add(new Term(1,3));
+		equation.add(new Term(-3,2));
+		equation.add(new Term(-13,1));
+		equation.add(new Term(15,0));
 		
-		points = new LinkedList<Point>();
-		for(int x = 0; x<=xMax;x++){
+		points = new LinkedList<Point2D.Float>();
+		for(int x = xMin; x<=xMax;x++){
 			float sum = 0;
 			for(int i=0;i<equation.size();i++){
 				sum+=equation.get(i).getValue(x);
 			}
-			points.add(new Point(x,(int) (yMax-100-(sum))));
+			points.add(new Point2D.Float(x,(int) sum*-1));
 		}
 	}
 	public void paintComponent(Graphics g){
 		super.paintComponent(g);
 		repaint();
 		g.setColor(Color.BLACK);
+		g.drawLine(0, yMax, Math.abs(xMax-xMin), yMax); //x-axis
+		g.drawLine(Math.abs(xMin),0,Math.abs(xMin),Math.abs(yMax-yMin)); //y-axis
 		if(points!=null){
 			for(int i=0;i<points.size()-1;i++){
-				g.fillOval(points.get(i).x*xScale-(ptSize/2), points.get(i).y*yScale-(ptSize/2), ptSize, ptSize);
-				g.drawLine(points.get(i).x*xScale,points.get(i).y*yScale,
-						points.get(i+1).x*xScale,points.get(i+1).y*yScale);
+				g.fillOval((int)((points.get(i).x*xScale-(ptSize/2))+Math.abs(xMin)), (int)(points.get(i).y*yScale-(ptSize/2)+Math.abs(yMax)), ptSize, ptSize);
+				g.drawLine((int)(points.get(i).x*xScale+Math.abs(xMin)),(int)(points.get(i).y*yScale+Math.abs(yMax)),
+						(int)(points.get(i+1).x*xScale+Math.abs(xMin)),(int)(points.get(i+1).y*yScale+Math.abs(yMax)));
 			}
-			
-				g.fillOval(points.get(points.size()-1).x*xScale,points.get(points.size()-1).y*yScale,ptSize,ptSize);
+			g.fillOval((int)((points.get(points.size()-1).x*xScale-(ptSize/2))+Math.abs(xMin)), (int)(points.get(points.size()-1).y*yScale-(ptSize/2)+Math.abs(yMax)), ptSize, ptSize);
 		}
+		/*
+		for(int i=0;i<equation.size();i++){
+			System.out.print(equation.get(i).toString());
+			if(i!=(equation.size()-1))
+				System.out.print("+");
+		}
+		System.out.print("\n");
+		*/
 	}
 
 }
